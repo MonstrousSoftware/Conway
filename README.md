@@ -10,6 +10,8 @@ Keys:
 - ESC:   quit
 - SPACE: pause
 - S:     single step (when paused)
+- scroll wheel : zoom
+- mouse drag : move view
 
 Requires GLES 3.1 profile (OpenGL 4.3).
 
