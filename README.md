@@ -5,6 +5,7 @@ May 8, 2024
 
 Experiment to try out compute shaders based on a demo from LWJGL3 based on 
 Conway's famous Game of Life.
+![screenshot](https://github.com/MonstrousSoftware/Conway/assets/49096535/74289931-1653-49e2-8660-fb1e45da6d61)
 
 Keys:
 - ESC:   quit
