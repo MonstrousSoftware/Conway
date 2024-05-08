@@ -1,9 +1,15 @@
 # Conway
 
-Monstrous Software 08/05/2024
+Monstrous Software 
+May 8, 2024
 
 Experiment to try out compute shaders based on a demo from LWJGL3 based on 
 Conway's famous Game of Life.
+
+Keys:
+- ESC:   quit
+- SPACE: pause
+- S:     single step (when paused)
 
 This demo is based on a LWJGL3 demo by Kai Burjack
 https://www.youtube.com/watch?v=h7aCroRpkN0
