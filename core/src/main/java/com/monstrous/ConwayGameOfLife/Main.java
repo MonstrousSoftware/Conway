@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
@@ -57,6 +58,9 @@ public class Main extends InputAdapter implements ApplicationListener {
 
     @Override
     public void create() {
+        if (Gdx.gl31 == null) {
+            throw new GdxRuntimeException("GLES 3.1 profile required for this programme.");
+        }
         Gdx.app.log("LibGDX version: ", Version.VERSION);
 
         batch = new SpriteBatch();
@@ -246,7 +250,7 @@ public class Main extends InputAdapter implements ApplicationListener {
     }
 
     private void computeNextState() {
-        GL30 gl = Gdx.gl30;
+        GL31 gl = Gdx.gl31;
 
         gl.glUseProgram(iterationProgram);
 
