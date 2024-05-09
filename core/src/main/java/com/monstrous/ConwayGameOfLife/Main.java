@@ -40,8 +40,6 @@ public class Main extends InputAdapter implements ApplicationListener {
     private SpriteBatch batch;
     private ExtendViewport viewport;
 
-    private static final boolean DEBUG = true;
-
     private static final int MAX_NUM_CELLS_X = 1024 * 4;
     private static final int MAX_NUM_CELLS_Y = 1024 * 4;
     private static final int WORK_GROUP_SIZE_X = 16;
@@ -58,14 +56,14 @@ public class Main extends InputAdapter implements ApplicationListener {
 
     @Override
     public void create() {
+        Gdx.app.log("LibGDX version: ", Version.VERSION);
         if (Gdx.gl31 == null) {
             throw new GdxRuntimeException("GLES 3.1 profile required for this programme.");
         }
-        Gdx.app.log("LibGDX version: ", Version.VERSION);
 
         batch = new SpriteBatch();
         viewport = new ExtendViewport(MAX_NUM_CELLS_X, MAX_NUM_CELLS_Y);
-        viewport.getCamera().position.set(MAX_NUM_CELLS_X/2, MAX_NUM_CELLS_Y/2, 0);
+        viewport.getCamera().position.set(MAX_NUM_CELLS_X/2f, MAX_NUM_CELLS_Y/2f, 0);
 
         iterationProgram = createIterationProgram();
 
@@ -136,8 +134,6 @@ public class Main extends InputAdapter implements ApplicationListener {
             zoom *= 1.1f;
         else
             zoom *= 0.9f;
-
-        Gdx.app.log("zoom", ""+zoom);
         ((OrthographicCamera)viewport.getCamera()).zoom = zoom;
         return true;
     }
@@ -204,16 +200,17 @@ public class Main extends InputAdapter implements ApplicationListener {
 
         gl.glShaderSource(shader, source);
         Gdx.gl.glCompileShader(shader);
-        if (DEBUG) {
-            IntBuffer intbuf = BufferUtils.newIntBuffer(1);
-            gl.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, intbuf);
-            int compiled = intbuf.get(0);
-            String log = Gdx.gl.glGetShaderInfoLog(shader);
-            if (log.trim().length() > 0)
-                System.err.println(log);
-            if (compiled == 0)
-                throw new AssertionError("Could not compile shader: " + resource);
-        }
+
+        // check compile status
+        IntBuffer intbuf = BufferUtils.newIntBuffer(1);
+        gl.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, intbuf);
+        int compiled = intbuf.get(0);
+        String log = Gdx.gl.glGetShaderInfoLog(shader);
+        if (log.trim().length() > 0)
+            System.err.println(log);
+        if (compiled == 0)
+            throw new AssertionError("Could not compile shader: " + resource);
+
         return shader;
     }
 
@@ -231,20 +228,21 @@ public class Main extends InputAdapter implements ApplicationListener {
         gl.glAttachShader(program, cshader);
         gl.glLinkProgram(program);
         gl.glDeleteShader(cshader);
-        if (DEBUG) {
-            ByteBuffer tmp = ByteBuffer.allocateDirect(4);
-            tmp.order(ByteOrder.nativeOrder());
-            IntBuffer intbuf = tmp.asIntBuffer();
 
-            gl.glGetProgramiv(program, GL20.GL_LINK_STATUS, intbuf);
-            int linked = intbuf.get(0);
+        // check link status
+        ByteBuffer tmp = ByteBuffer.allocateDirect(4);
+        tmp.order(ByteOrder.nativeOrder());
+        IntBuffer intbuf = tmp.asIntBuffer();
 
-            String programLog = Gdx.gl.glGetProgramInfoLog(program);
-            if (programLog.trim().length() > 0)
-                System.err.println(programLog);
-            if (linked == 0)
-                throw new AssertionError("Could not link program");
-        }
+        gl.glGetProgramiv(program, GL20.GL_LINK_STATUS, intbuf);
+        int linked = intbuf.get(0);
+
+        String programLog = Gdx.gl.glGetProgramInfoLog(program);
+        if (programLog.trim().length() > 0)
+            System.err.println(programLog);
+        if (linked == 0)
+            throw new AssertionError("Could not link program");
+
         iterationProgram = program;
         return program;
     }
@@ -252,20 +250,20 @@ public class Main extends InputAdapter implements ApplicationListener {
     private void computeNextState() {
         GL31 gl = Gdx.gl31;
 
+        // call compute shader to execute one step of the Game of Life
+        // using an input texture and an output texture
+
         gl.glUseProgram(iterationProgram);
 
-        // new call (not in standard LibGDX)
         gl.glBindImageTexture(0, textures[readTexIndex].getTextureObjectHandle(), 0, false, 0, GL_READ_ONLY, GL_RGBA8);
         gl.glBindImageTexture(1, textures[1 - readTexIndex].getTextureObjectHandle(), 0, false, 0, GL_WRITE_ONLY, GL_RGBA8);
 
         int numWorkGroupsX = MAX_NUM_CELLS_X / WORK_GROUP_SIZE_X;
         int numWorkGroupsY = MAX_NUM_CELLS_Y / WORK_GROUP_SIZE_Y;
 
-        // new call (not in standard LibGDX)
         gl.glDispatchCompute(numWorkGroupsX, numWorkGroupsY, 1);
 
-        // new call (not in standard LibGDX)
-        gl.glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        gl.glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT); // wait for computation to complete
     }
 
     /*
@@ -299,8 +297,8 @@ public class Main extends InputAdapter implements ApplicationListener {
             pat.height = height;
             // read the PNG file to a pixmap
             Pixmap pixmap = new Pixmap(Gdx.files.internal("spaceships/" + m.group(1)));
-            float scaleX = pixmap.getWidth() / width;
-            float scaleY = pixmap.getHeight() / height;
+            float scaleX = (float) pixmap.getWidth() / (float) width;
+            float scaleY = (float) pixmap.getHeight() / (float) height;
 
             Pixmap pm = new Pixmap(width, height, Pixmap.Format.RGBA8888);
             pm.setColor(Color.WHITE);

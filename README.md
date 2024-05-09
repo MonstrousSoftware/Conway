@@ -20,12 +20,14 @@ This demo is based on a LWJGL3 demo by Kai Burjack
 https://www.youtube.com/watch?v=h7aCroRpkN0
 https://github.com/LWJGL/lwjgl3-demos/blob/main/src/org/lwjgl/demo/opengl/shader/GameOfLife.java
 
-The demo was rewritten to make use of standard LibGDX functionality, 
+The demo was adapted to make use of standard LibGDX functionality, 
 e.g. Texture, Pixmap, InputAdapter, etc.
 
 Other changes: the Texture that is used as input/output buffers for the compute shader are 
 in RGBA8888 format, instead of GL_R8UI, so that they can be directly rendered to screen.  
 The compute shader was slightly modified for this.   
 The downside is the buffers now use 4 floats per pixel instead of one byte.  So it would be interesting
-to find a way to make Texture's with single byte "pixels".
+to find a way to make Texture with single byte "pixels".
+
+This only runs on the desktop (LWJGL3) version.  GWT and TeaVM don't support GL31 today. 
 
