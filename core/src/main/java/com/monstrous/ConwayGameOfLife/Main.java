@@ -3,6 +3,7 @@ package com.monstrous.ConwayGameOfLife;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
@@ -38,7 +39,9 @@ import static java.lang.Integer.parseInt;
 
 public class Main extends InputAdapter implements ApplicationListener {
     private SpriteBatch batch;
+    private SpriteBatch batchText;
     private ExtendViewport viewport;
+    private BitmapFont font;
 
     private static final int MAX_NUM_CELLS_X = 1024 * 4;
     private static final int MAX_NUM_CELLS_Y = 1024 * 4;
@@ -52,6 +55,7 @@ public class Main extends InputAdapter implements ApplicationListener {
     private float zoom = 1f;
     private boolean paused = false;
     private boolean step = false;
+    private StringBuffer sb = new StringBuffer();
     private final Vector2 prevTouch = new Vector2();
 
     @Override
@@ -62,8 +66,11 @@ public class Main extends InputAdapter implements ApplicationListener {
         }
 
         batch = new SpriteBatch();
+        batchText = new SpriteBatch();
         viewport = new ExtendViewport(MAX_NUM_CELLS_X, MAX_NUM_CELLS_Y);
         viewport.getCamera().position.set(MAX_NUM_CELLS_X/2f, MAX_NUM_CELLS_Y/2f, 0);
+
+        font = new BitmapFont();
 
         iterationProgram = createIterationProgram();
 
@@ -76,6 +83,7 @@ public class Main extends InputAdapter implements ApplicationListener {
 
     @Override
     public void resize(int width, int height) {
+
         viewport.update(width, height, false);
     }
 
@@ -95,6 +103,16 @@ public class Main extends InputAdapter implements ApplicationListener {
         batch.begin();
         batch.draw(textures[readTexIndex], 0, 0);
         batch.end();
+
+
+        sb.setLength(0);
+        sb.append("FPS: ");
+        sb.append(Gdx.graphics.getFramesPerSecond());
+
+        batchText.begin();
+        font.draw(batchText, sb.toString() , 0,20);
+        batchText.end();
+
 
         // switch input and output buffer for next iteration
         if(!paused || step)
@@ -122,10 +140,12 @@ public class Main extends InputAdapter implements ApplicationListener {
     @Override
     public void dispose() {
         batch.dispose();
+        batchText.dispose();
         for(Texture tex : textures )
             tex.dispose();
         for(GolPattern pat : patterns)
             pat.pixmap.dispose();
+        font.dispose();
     }
 
     @Override
